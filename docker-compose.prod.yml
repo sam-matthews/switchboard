@@ -1,0 +1,13 @@
+services:
+  backend:
+    environment:
+      NODE_ENV: production
+    volumes: []
+
+  frontend:
+    build:
+      target: production
+    volumes: []
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-https://api.sammatthews.nz}
+      VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-}

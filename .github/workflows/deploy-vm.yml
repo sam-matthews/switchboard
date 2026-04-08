@@ -1,0 +1,85 @@
+name: Deploy To VM
+
+on:
+  push:
+    branches:
+      - integration
+  workflow_dispatch:
+
+concurrency:
+  group: vm-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment: integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Build deployment archive
+        run: |
+          set -euo pipefail
+          git archive --format=tar.gz --output=deploy.tar.gz HEAD
+
+      - name: Validate deployment target
+        run: |
+          set -euo pipefail
+          : "${{ secrets.VM_HOST }}"
+          : "${{ secrets.VM_APP_DIR }}"
+          echo "Deploy target host: ${{ secrets.VM_HOST }}"
+          echo "Deploy target dir:  ${{ secrets.VM_APP_DIR }}"
+
+      - name: Copy deployment archive to VM
+        uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: ${{ secrets.VM_PORT }}
+          source: "deploy.tar.gz"
+          target: "/tmp/keycloak-app-deploy"
+          overwrite: true
+          rm: false
+          strip_components: 0
+
+      - name: Deploy services on VM
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: ${{ secrets.VM_PORT }}
+          script: |
+            set -euo pipefail
+
+            mkdir -p "${{ secrets.VM_APP_DIR }}"
+            tar -xzf /tmp/keycloak-app-deploy/deploy.tar.gz -C "${{ secrets.VM_APP_DIR }}" --no-same-owner
+            rm -f /tmp/keycloak-app-deploy/deploy.tar.gz
+
+            cd "${{ secrets.VM_APP_DIR }}"
+            ./scripts/deploy-vm.sh "$PWD"
+
+      - name: Verify public endpoints
+        run: |
+          set -euo pipefail
+          curl --retry 12 --retry-delay 5 --retry-all-errors -fsS https://api.sammatthews.nz/api/health
+          curl --retry 12 --retry-delay 5 --retry-all-errors -fsSI https://app.sammatthews.nz
+          curl --retry 12 --retry-delay 5 --retry-all-errors -fsSI https://auth.sammatthews.nz
+          # Traefik health check (ping endpoint)
+          curl --retry 12 --retry-delay 5 --retry-all-errors -fsS http://reverse-proxy:80/ping || curl --retry 12 --retry-delay 5 --retry-all-errors -fsS http://localhost/ping || curl --retry 12 --retry-delay 5 --retry-all-errors -fsS https://app.sammatthews.nz/ping || echo "Warning: Traefik /ping endpoint not reachable from this context"
+
+      - name: Prune unused Docker images on VM
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: ${{ secrets.VM_PORT }}
+          script: |
+            set -euo pipefail
+            echo "Pruning unused Docker images..."
+            docker image prune -af
+            echo "Docker image prune complete."
