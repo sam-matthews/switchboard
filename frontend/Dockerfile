@@ -27,11 +27,13 @@ ENV VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
 
 RUN npm run build
 
-FROM nginx:1.28-alpine AS production
+FROM node:20-alpine AS production
 
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+WORKDIR /app
+
+RUN npm install -g serve@14.2.4
+COPY --from=build /app/dist /app/dist
 
 EXPOSE 3000
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "dist", "-l", "3000"]
