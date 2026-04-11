@@ -40,7 +40,7 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           port: ${{ secrets.VM_PORT }}
           source: "deploy.tar.gz"
-          target: "/tmp/keycloak-app-deploy"
+          target: "/tmp/switchboard-app-deploy"
           overwrite: true
           rm: false
           strip_components: 0
@@ -56,8 +56,8 @@ jobs:
             set -euo pipefail
 
             mkdir -p "${{ secrets.VM_APP_DIR }}"
-            tar -xzf /tmp/keycloak-app-deploy/deploy.tar.gz -C "${{ secrets.VM_APP_DIR }}" --no-same-owner
-            rm -f /tmp/keycloak-app-deploy/deploy.tar.gz
+            tar -xzf /tmp/switchboard-app-deploy/deploy.tar.gz -C "${{ secrets.VM_APP_DIR }}" --no-same-owner
+            rm -f /tmp/switchboard-app-deploy/deploy.tar.gz
 
             cd "${{ secrets.VM_APP_DIR }}"
             chmod +x ./scripts/deploy-vm.sh
