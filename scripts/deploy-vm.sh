@@ -35,7 +35,7 @@ fi
 
 # Pull first for pre-built images; ignore failures because some services are build-only.
 "${DC[@]}" "${COMPOSE_FILES[@]}" pull --ignore-pull-failures || true
-"${DC[@]}" "${COMPOSE_FILES[@]}" up -d --build --remove-orphans
+"${DC[@]}" "${COMPOSE_FILES[@]}" up -d --build --force-recreate --remove-orphans
 
 # Apply idempotent Keycloak realm/client configuration after services are up,
 # but only when the setup service is defined in this environment.

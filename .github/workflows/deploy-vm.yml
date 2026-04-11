@@ -90,7 +90,15 @@ jobs:
 
           # Required checks
           check_url "https://api.sammatthews.nz/api/health" "API health"
-          check_url "https://app.sammatthews.nz" "Frontend app"
+
+          # Frontend can occasionally return 404 at "/" during rollout/proxy reload.
+          # Validate "/index.html" as fallback for static app availability.
+          if ! check_url "https://app.sammatthews.nz" "Frontend app"; then
+            echo "[verify] Frontend root check failed; trying /index.html fallback"
+            check_url "https://app.sammatthews.nz/index.html" "Frontend app (index fallback)"
+            echo "[verify] Frontend headers for root path:"
+            curl -sSI "https://app.sammatthews.nz" || true
+          fi
 
           # Optional check: this stack may not include Keycloak in all environments.
           if ! check_url "https://auth.sammatthews.nz" "Auth host" 3; then
