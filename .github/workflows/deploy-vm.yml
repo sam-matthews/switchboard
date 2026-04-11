@@ -1,4 +1,4 @@
-name: Deploy To VM
+# Fixed / added secrets.name: Deploy To VM
 
 on:
   push:
