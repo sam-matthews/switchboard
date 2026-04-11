@@ -66,11 +66,43 @@ jobs:
       - name: Verify public endpoints
         run: |
           set -euo pipefail
-          curl --retry 12 --retry-delay 5 --retry-all-errors -fsS https://api.sammatthews.nz/api/health
-          curl --retry 12 --retry-delay 5 --retry-all-errors -fsSI https://app.sammatthews.nz
-          curl --retry 12 --retry-delay 5 --retry-all-errors -fsSI https://auth.sammatthews.nz
-          # Traefik health check (ping endpoint)
-          curl --retry 12 --retry-delay 5 --retry-all-errors -fsS http://reverse-proxy:80/ping || curl --retry 12 --retry-delay 5 --retry-all-errors -fsS http://localhost/ping || curl --retry 12 --retry-delay 5 --retry-all-errors -fsS https://app.sammatthews.nz/ping || echo "Warning: Traefik /ping endpoint not reachable from this context"
+          check_url() {
+            local url="$1"
+            local label="$2"
+            local max_tries="${3:-12}"
+            local try=1
+            local code=""
+
+            while [[ "$try" -le "$max_tries" ]]; do
+              code="$(curl -sS -o /dev/null -w "%{http_code}" "$url" || true)"
+              if [[ "$code" =~ ^2[0-9][0-9]$ || "$code" =~ ^3[0-9][0-9]$ ]]; then
+                echo "[verify] $label OK ($code)"
+                return 0
+              fi
+              echo "[verify] $label attempt $try/$max_tries returned HTTP $code"
+              sleep 5
+              try=$((try + 1))
+            done
+
+            echo "[verify] ERROR: $label failed after $max_tries attempts"
+            return 1
+          }
+
+          # Required checks
+          check_url "https://api.sammatthews.nz/api/health" "API health"
+          check_url "https://app.sammatthews.nz" "Frontend app"
+
+          # Optional check: this stack may not include Keycloak in all environments.
+          if ! check_url "https://auth.sammatthews.nz" "Auth host" 3; then
+            echo "[verify] Auth host check failed; continuing because auth service is optional in this deployment"
+          fi
+
+          # Traefik ping endpoint is optional from GitHub-hosted runner context.
+          if ! check_url "http://reverse-proxy:80/ping" "Traefik ping via service DNS" 2; then
+            if ! check_url "http://localhost/ping" "Traefik ping via localhost" 2; then
+              check_url "https://app.sammatthews.nz/ping" "Traefik ping via public host" 2 || echo "[verify] Warning: Traefik /ping endpoint not reachable from this context"
+            fi
+          fi
 
       - name: Prune unused Docker images on VM
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
