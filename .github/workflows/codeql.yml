@@ -1,22 +1,7 @@
 name: CodeQL
 
 on:
-  pull_request:
-    branches:
-      - integration
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - '.github/workflows/codeql.yml'
-  push:
-    branches:
-      - integration
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - '.github/workflows/codeql.yml'
-  schedule:
-    - cron: '30 2 * * 1'
+  workflow_dispatch:
 
 jobs:
   analyze:

@@ -33,7 +33,8 @@ WORKDIR /app
 
 RUN npm install -g serve@14.2.4
 COPY --from=build /app/dist /app/dist
+RUN test -f /app/dist/index.html
 
 EXPOSE 3000
 
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["serve", "-s", "/app/dist", "-l", "3000"]
