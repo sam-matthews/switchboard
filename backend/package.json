@@ -1,7 +1,7 @@
 {
-  "name": "keycloak-demo-backend",
+  "name": "switchboard-backend",
   "version": "1.0.0",
-  "description": "Backend API for Keycloak demo app",
+  "description": "Backend API for Switchboard app",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

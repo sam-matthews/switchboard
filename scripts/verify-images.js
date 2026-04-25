@@ -70,6 +70,7 @@ function main() {
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   const minimumImageAgeDays = Number(config.minimumImageAgeDays || 14);
+  const allowFreshImages = Array.isArray(config.allowFreshImages) ? config.allowFreshImages : [];
 
   const composeFile = config.composeFile || 'docker-compose.yml';
   const composeFilePath = path.join(__dirname, '..', composeFile);
@@ -79,7 +80,7 @@ function main() {
 
   const trackedServices = Array.isArray(config.trackedServices) && config.trackedServices.length > 0
     ? config.trackedServices
-    : ['keycloak-db', 'app-db', 'reverse-proxy'];
+    : ['app-db', 'reverse-proxy'];
 
   const images = getImagesFromCompose(composeFilePath, trackedServices);
 
@@ -112,9 +113,13 @@ function main() {
     console.log(`  created: ${createdIso} | age: ${formatAge(ageDays)}`);
 
     if (ageDays < minimumImageAgeDays) {
-      failures.push(
-        `${image} is too new (${formatAge(ageDays)}). Minimum required age is ${minimumImageAgeDays} days.`
-      );
+      if (allowFreshImages.includes(image)) {
+        console.log(`  ✓ Exempted via allowFreshImages`);
+      } else {
+        failures.push(
+          `${image} is too new (${formatAge(ageDays)}). Minimum required age is ${minimumImageAgeDays} days.`
+        );
+      }
     }
   }
 

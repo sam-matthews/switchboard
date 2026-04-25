@@ -37,14 +37,6 @@ fi
 "${DC[@]}" "${COMPOSE_FILES[@]}" pull --ignore-pull-failures || true
 "${DC[@]}" "${COMPOSE_FILES[@]}" up -d --build --force-recreate --remove-orphans
 
-# Apply idempotent Keycloak realm/client configuration after services are up,
-# but only when the setup service is defined in this environment.
-if "${DC[@]}" "${COMPOSE_FILES[@]}" config --services | grep -qx 'keycloak-setup'; then
-  "${DC[@]}" "${COMPOSE_FILES[@]}" run --rm keycloak-setup
-else
-  echo "[deploy] keycloak-setup service not defined; skipping setup step"
-fi
-
 echo "[deploy] service status"
 "${DC[@]}" "${COMPOSE_FILES[@]}" ps
 
