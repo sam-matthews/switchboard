@@ -1,7 +1,7 @@
 # GitHub Copilot Instructions
 
 ## Project Overview
-This is a Keycloak authentication demo application with a React frontend and Node.js backend, using PostgreSQL for data persistence.
+This is a React frontend and Node.js backend application with authentication support, using PostgreSQL for data persistence.
 
 ## Architecture & Infrastructure
 
@@ -9,7 +9,7 @@ This is a Keycloak authentication demo application with a React frontend and Nod
 - **Always use containers** for all services and dependencies
 - Use **PostgreSQL database in a separate container** - never use SQLite or in-memory databases
 - Define services in `docker-compose.yml` with proper networking and volume management
-- Each service (frontend, backend, database, Keycloak) should run in its own container
+- Each service (frontend, backend, database) should run in its own container
 - Use multi-stage builds in Dockerfiles to minimize image size
 - Pin specific image versions (avoid `latest` tag) for reproducibility
 
@@ -67,7 +67,6 @@ This is a Keycloak authentication demo application with a React frontend and Nod
 - Use transactions for multi-step operations
 
 ### Authentication & Security
-- Use Keycloak for centralized authentication and authorization
 - Validate JWT tokens on every protected endpoint
 - Implement proper CORS configuration
 - Use HTTPS in production
