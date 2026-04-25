@@ -88,17 +88,44 @@ jobs:
             return 1
           }
 
+          check_frontend() {
+            local root_url="https://app.sammatthews.nz"
+            local fallback_url="https://app.sammatthews.nz/index.html"
+            local max_tries="${1:-12}"
+            local try=1
+            local root_code=""
+            local fallback_code=""
+
+            while [[ "$try" -le "$max_tries" ]]; do
+              root_code="$(curl -sS -o /dev/null -w "%{http_code}" "$root_url" || true)"
+              if [[ "$root_code" =~ ^2[0-9][0-9]$ || "$root_code" =~ ^3[0-9][0-9]$ ]]; then
+                echo "[verify] Frontend app OK at / ($root_code)"
+                return 0
+              fi
+
+              fallback_code="$(curl -sS -o /dev/null -w "%{http_code}" "$fallback_url" || true)"
+              if [[ "$fallback_code" =~ ^2[0-9][0-9]$ || "$fallback_code" =~ ^3[0-9][0-9]$ ]]; then
+                echo "[verify] Frontend app OK at /index.html ($fallback_code), root currently $root_code"
+                return 0
+              fi
+
+              echo "[verify] Frontend app attempt $try/$max_tries root=$root_code index=$fallback_code"
+              sleep 5
+              try=$((try + 1))
+            done
+
+            echo "[verify] Frontend headers for root path:"
+            curl -sSI "$root_url" || true
+            echo "[verify] ERROR: Frontend app failed after $max_tries attempts"
+            return 1
+          }
+
           # Required checks
           check_url "https://api.sammatthews.nz/api/health" "API health"
 
           # Frontend can occasionally return 404 at "/" during rollout/proxy reload.
-          # Validate "/index.html" as fallback for static app availability.
-          if ! check_url "https://app.sammatthews.nz" "Frontend app"; then
-            echo "[verify] Frontend root check failed; trying /index.html fallback"
-            check_url "https://app.sammatthews.nz/index.html" "Frontend app (index fallback)"
-            echo "[verify] Frontend headers for root path:"
-            curl -sSI "https://app.sammatthews.nz" || true
-          fi
+          # Check both "/" and "/index.html" on each retry to avoid false-negative deploy failures.
+          check_frontend 12
 
           # Optional check: this stack may not include Keycloak in all environments.
           if ! check_url "https://auth.sammatthews.nz" "Auth host" 3; then
