@@ -1,0 +1,12 @@
+{
+  "name": "switchboard",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo utility scripts for CI security checks",
+  "scripts": {
+    "security:images:age": "node scripts/verify-images.js",
+    "security:deps": "node scripts/verify-dependencies.js",
+    "security:images:scan": "bash scripts/scan-images.sh",
+    "security:vulns": "bash scripts/scan-vulnerabilities.sh"
+  }
+}
