@@ -5,6 +5,17 @@ on:
     branches:
       - integration
   workflow_dispatch:
+    inputs:
+      verify_auth_host:
+        description: "Run optional auth host verification"
+        required: false
+        default: false
+        type: boolean
+      auth_host_url:
+        description: "Auth host URL to verify when enabled"
+        required: false
+        default: "https://auth.sammatthews.nz"
+        type: string
 
 concurrency:
   group: vm-production-deploy
@@ -64,6 +75,9 @@ jobs:
             ./scripts/deploy-vm.sh "$PWD"
 
       - name: Verify public endpoints
+        env:
+          VERIFY_AUTH_HOST: ${{ github.event.inputs.verify_auth_host || 'false' }}
+          AUTH_HOST_URL: ${{ github.event.inputs.auth_host_url || 'https://auth.sammatthews.nz' }}
         run: |
           set -euo pipefail
           check_url() {
@@ -127,17 +141,19 @@ jobs:
           # Check both "/" and "/index.html" on each retry to avoid false-negative deploy failures.
           check_frontend 12
 
-          # Optional check: this stack may not include Keycloak in all environments.
-          if ! check_url "https://auth.sammatthews.nz" "Auth host" 3; then
-            echo "[verify] Auth host check failed; continuing because auth service is optional in this deployment"
+          # Optional auth host verification. Disabled by default because many environments
+          # use external OIDC providers (for example Clerk) instead of the auth host.
+          if [[ "$VERIFY_AUTH_HOST" == "true" ]]; then
+            if ! check_url "$AUTH_HOST_URL" "Auth host" 3; then
+              echo "[verify] Auth host check failed; continuing because auth service is optional in this deployment"
+            fi
+          else
+            echo "[verify] Skipping optional auth host verification (VERIFY_AUTH_HOST=false)"
           fi
 
-          # Traefik ping endpoint is optional from GitHub-hosted runner context.
-          if ! check_url "http://reverse-proxy:80/ping" "Traefik ping via service DNS" 2; then
-            if ! check_url "http://localhost/ping" "Traefik ping via localhost" 2; then
-              check_url "https://app.sammatthews.nz/ping" "Traefik ping via public host" 2 || echo "[verify] Warning: Traefik /ping endpoint not reachable from this context"
-            fi
-          fi
+          # Skip Traefik service-DNS/localhost ping checks: GitHub-hosted runners cannot
+          # resolve VM-internal Docker DNS names or localhost service ports on the VM.
+          echo "[verify] Skipping Traefik internal ping checks from hosted runner context"
 
       - name: Prune unused Docker images on VM
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
