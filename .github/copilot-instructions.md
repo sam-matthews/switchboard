@@ -79,7 +79,13 @@ This is a Keycloak authentication demo application with a React frontend and Nod
 
 ### Code Organization
 - Keep configuration files in the root directory
-- Keep documentation files in a `doc/` folder, except `README.md` which stays at the root
+- Keep documentation files in a `doc/` folder, organized by component in subdirectories:
+  - `doc/workflows/` for GitHub Actions and CI/CD documentation
+  - `doc/backend/` for backend-specific documentation
+  - `doc/frontend/` for frontend-specific documentation
+  - `doc/infrastructure/` for Docker, reverse proxy, and deployment documentation
+  - `doc/security/` for security policies and procedures
+  - Exception: `README.md` stays at the root for project overview
 - Organize backend code in `backend/src/` with subdirectories for routes, middleware, models, services
 - Organize frontend code in `frontend/src/` with subdirectories for components, contexts, services, utils
 - Use meaningful file and directory names
