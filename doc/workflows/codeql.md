@@ -8,21 +8,35 @@ The CodeQL workflow performs static code analysis to identify security vulnerabi
 
 **File:** [.github/workflows/codeql.yml](../../.github/workflows/codeql.yml)  
 **Name:** CodeQL  
-**Trigger:** Manual dispatch (`workflow_dispatch`)
+
+**Triggers:** 
+
+- Pull requests to `integration` branch (automatic)
+- Pushes to `integration` branch (automatic)
+- Manual dispatch (`workflow_dispatch`)
+
+**Monitored Paths:**
+
+- `backend/**` - Backend code changes
+- `frontend/**` - Frontend code changes
+- `.github/workflows/codeql.yml` - Workflow file changes
 
 ### Jobs
 
 #### `analyze`
+
 Performs CodeQL analysis on the codebase for JavaScript/TypeScript code.
 
 **Runner:** `ubuntu-latest`
 
 **Permissions:**
+
 - `actions: read` - Read workflow artifacts
 - `contents: read` - Read repository contents
 - `security-events: write` - Upload security analysis results
 
 **Matrix Strategy:**
+
 - Language: `javascript-typescript`
 - Fail-fast: Disabled (continues even if one analysis fails)
 
@@ -45,21 +59,44 @@ Performs CodeQL analysis on the codebase for JavaScript/TypeScript code.
 
 ## Running the Workflow
 
-### Method 1: Using the Validation Script (Recommended)
+### Automatic Execution (Default)
 
-A validation and trigger script is provided to make it easy to validate and run the workflow:
+The workflow **automatically runs** when:
+
+1. **Pull Request to integration** - CodeQL scans all code changes before merging
+   - Open a PR targeting the `integration` branch
+   - The workflow runs automatically on PR creation and updates
+   - Results appear in the PR checks
+
+2. **Push to integration** - Continuous security scanning
+   - When code is merged to `integration`
+   - Provides ongoing security monitoring
+
+**Scope:** Only runs when changes are made to:
+
+- Backend code (`backend/**`)
+- Frontend code (`frontend/**`)
+- The workflow file itself
+
+### Manual Execution (Optional)
+
+#### Method 1: Using the Validation Script
+
+A validation and trigger script is provided to validate and manually run the workflow:
 
 ```bash
 ./scripts/run-codeql-workflow.sh
 ```
 
 This script will:
+
 1. Validate YAML syntax (if `yq` is installed)
 2. Check workflow structure and required fields
 3. Run `actionlint` validation (if installed)
 4. Optionally trigger the workflow on GitHub
 
 **Optional Tool Installation:**
+
 ```bash
 # Install YAML validator
 brew install yq
@@ -67,22 +104,18 @@ brew install yq
 # Install GitHub Actions linter
 brew install actionlint
 
-# Install GitHub CLI (required for triggering)
+# Install GitHub CLI (required for manual triggering)
 brew install gh
 gh auth login
 ```
 
-### Method 2: Using GitHub CLI
+**Note:** Manual triggering via `workflow_dispatch` requires the workflow to exist on the repository's default branch. Use automatic PR triggers instead.
+
+#### Method 2: Using GitHub CLI
 
 Trigger the workflow manually from the command line:
 
 ```bash
-# Trigger on current branch
-gh workflow run codeql.yml
-
-# Trigger on specific branch
-gh workflow run codeql.yml --ref branch-name
-
 # View workflow runs
 gh run list --workflow=codeql.yml
 
@@ -90,7 +123,9 @@ gh run list --workflow=codeql.yml
 gh run watch
 ```
 
-### Method 3: Using GitHub Web Interface
+#### Method 3: Using GitHub Web Interface
+
+For manual triggers only (requires workflow on default branch):
 
 1. Navigate to the repository on GitHub
 2. Go to the **Actions** tab
@@ -101,6 +136,15 @@ gh run watch
 
 ## Viewing Results
 
+### In Pull Requests (Primary Method)
+
+When CodeQL runs on a PR, results appear directly in the pull request:
+
+1. Open your pull request on GitHub
+2. Check the **Checks** tab to see CodeQL status
+3. Click on the CodeQL check for detailed findings
+4. Any security issues will be highlighted with annotations
+
 ### Security Alerts
 
 CodeQL findings are automatically uploaded to GitHub's Security tab:
@@ -108,6 +152,7 @@ CodeQL findings are automatically uploaded to GitHub's Security tab:
 1. Navigate to the **Security** tab in the repository
 2. Click **Code scanning alerts**
 3. Review any identified vulnerabilities or code quality issues
+4. Filter by branch, severity, or rule to focus on specific issues
 
 ### Workflow Logs
 
@@ -125,6 +170,7 @@ gh run view <run-id> --web
 ```
 
 Or via the GitHub web interface:
+
 1. Go to **Actions** tab
 2. Click on the workflow run
 3. Expand the job steps to see detailed logs
@@ -141,6 +187,7 @@ Or via the GitHub web interface:
 ### Common Findings
 
 CodeQL may identify:
+
 - **SQL Injection** vulnerabilities
 - **Cross-Site Scripting (XSS)** issues
 - **Path Traversal** risks
@@ -162,6 +209,7 @@ The workflow uses pinned SHA versions for security. To update:
 4. Merge after successful validation
 
 Example update:
+
 ```yaml
 - name: Initialize CodeQL
   uses: github/codeql-action/init@<new-sha-here> # v3
@@ -173,12 +221,14 @@ To analyze other languages (e.g., Python, Go, Java):
 
 1. Edit [.github/workflows/codeql.yml](../../.github/workflows/codeql.yml)
 2. Add to the matrix strategy:
+
 ```yaml
 matrix:
   language: ['javascript-typescript', 'python', 'go']
 ```
 
 Supported languages:
+
 - `javascript-typescript`
 - `python`
 - `java`
@@ -200,32 +250,42 @@ To add custom CodeQL queries or query suites:
 ```
 
 Available query suites:
+
 - `security-extended` - Extended security queries
 - `security-and-quality` - Security + code quality queries
 - Custom `.ql` or `.qls` files in the repository
 
 ## Troubleshooting
 
-### Workflow Fails to Trigger
+### Workflow Doesn't Run on Pull Request
+
+**Issue:** CodeQL workflow doesn't execute when opening a PR
+
+**Solutions:**
+
+1. Verify the PR is targeting the `integration` branch
+2. Check that changes include monitored paths (`backend/**`, `frontend/**`, or workflow file)
+3. View the Actions tab to see if the workflow was skipped
+4. Ensure GitHub Actions are enabled for the repository
+
+### Manual Trigger Fails
 
 **Issue:** "Workflow does not have 'workflow_dispatch' trigger"
 
-**Solution:** Ensure the workflow file contains:
-```yaml
-on:
-  workflow_dispatch:
-```
+**Solution:** The `workflow_dispatch` trigger requires the workflow file to exist on the repository's default branch (usually `main`).
 
-This is already configured in the current workflow.
+**Workaround:** Use the automatic PR triggers instead, or merge the workflow to the default branch first.
 
 ### Build Failures
 
 **Issue:** Autobuild step fails
 
 **Solutions:**
+
 1. Check that `package.json` has valid scripts
 2. Ensure dependencies can be installed
 3. Add manual build commands if needed:
+
 ```yaml
 - name: Build
   run: |
@@ -238,8 +298,10 @@ This is already configured in the current workflow.
 **Issue:** Analysis runs out of memory
 
 **Solutions:**
+
 1. Exclude large generated files
 2. Add a `.github/codeql/codeql-config.yml`:
+
 ```yaml
 paths-ignore:
   - 'node_modules/**'
@@ -252,6 +314,7 @@ paths-ignore:
 **Issue:** Cannot upload SARIF results
 
 **Solution:** Verify permissions in workflow:
+
 ```yaml
 permissions:
   security-events: write
@@ -268,21 +331,44 @@ permissions:
 5. **Integrate with CI/CD** - Consider adding automatic PR checks
 6. **Document Suppressions** - If suppressing alerts, document why
 
-## Scheduling Automatic Runs
+## Current Automatic Triggers
 
-To run CodeQL automatically, add schedule triggers:
+The workflow is already configured to run automatically:
 
 ```yaml
 on:
+  pull_request:
+    branches: [ integration ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/codeql.yml'
+  push:
+    branches: [ integration ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/codeql.yml'
   workflow_dispatch:
+```
+
+### Adding Scheduled Scans (Optional)
+
+To add periodic scans (e.g., weekly) even without code changes:
+
+```yaml
+on:
+  pull_request:
+    branches: [ integration ]
+  push:
+    branches: [ integration ]
   schedule:
     # Run every Monday at 9 AM UTC
     - cron: '0 9 * * 1'
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 ```
+
+**Note:** Scheduled runs don't use path filters and will scan the entire codebase.
 
 ## Resources
 
@@ -299,6 +385,7 @@ on:
 ## Support
 
 For issues with the workflow:
+
 1. Check the troubleshooting section above
 2. Review workflow logs for specific errors
 3. Consult GitHub's CodeQL documentation
