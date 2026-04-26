@@ -31,7 +31,7 @@ Private repositories require **GitHub Advanced Security** (available with GitHub
 
 If you have the correct permissions, GitHub may automatically enable code scanning when the workflow first runs. If you see the error:
 
-```
+``` bash
 Code scanning is not enabled for this repository
 ```
 
@@ -42,7 +42,7 @@ Enable it manually using the steps above.
 **File:** [.github/workflows/codeql.yml](../../.github/workflows/codeql.yml)  
 **Name:** CodeQL  
 
-**Triggers:** 
+**Triggers:**
 
 - Pull requests to `integration` branch (automatic)
 - Pushes to `integration` branch (automatic)
@@ -295,7 +295,8 @@ Available query suites:
 **Issue:** "Code scanning is not enabled for this repository" error when workflow runs
 
 **Error Message:**
-```
+
+``` bash
 Error: Please verify that the necessary features are enabled: 
 Code scanning is not enabled for this repository. 
 Please enable code scanning in the repository settings.
