@@ -89,6 +89,32 @@ check_actionlint() {
   fi
 }
 
+# Function to check if code scanning is enabled
+check_code_scanning() {
+  echo ""
+  echo "🔐 Checking code scanning status..."
+  
+  if ! command -v gh &> /dev/null; then
+    echo -e "${YELLOW}⚠${NC} GitHub CLI (gh) not installed, skipping code scanning check"
+    return 0
+  fi
+  
+  if ! gh auth status > /dev/null 2>&1; then
+    echo -e "${YELLOW}⚠${NC} Not authenticated with GitHub CLI, skipping code scanning check"
+    return 0
+  fi
+  
+  # Try to check if code scanning is enabled
+  # Note: This is a best-effort check, may not work for all repo configurations
+  if gh api repos/:owner/:repo/code-scanning/alerts --paginate > /dev/null 2>&1; then
+    echo -e "${GREEN}✓${NC} Code scanning appears to be enabled"
+  else
+    echo -e "${YELLOW}⚠${NC} Code scanning may not be enabled"
+    echo "  Enable it at: Settings → Code security and analysis → Code scanning"
+    echo "  Documentation: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/setting-up-code-scanning-for-a-repository"
+  fi
+}
+
 # Function to trigger workflow on GitHub
 trigger_workflow() {
   echo ""
@@ -129,6 +155,7 @@ cd "$PROJECT_ROOT"
 validate_yaml_syntax
 check_workflow_structure
 check_actionlint
+check_code_scanning
 
 echo ""
 echo "================================================"

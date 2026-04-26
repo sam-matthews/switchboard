@@ -4,6 +4,39 @@
 
 The CodeQL workflow performs static code analysis to identify security vulnerabilities and code quality issues in the JavaScript/TypeScript codebase. It uses GitHub's advanced semantic code analysis engine to detect potential security problems before they reach production.
 
+## Prerequisites
+
+### Enabling Code Scanning
+
+**IMPORTANT:** Code scanning must be enabled in the repository settings before the workflow can run successfully.
+
+#### For Public Repositories (Free)
+
+1. Go to your repository on GitHub
+2. Click **Settings** → **Code security and analysis**
+3. Find **Code scanning** section
+4. Click **Set up** → **Default** (or **Advanced** for custom configuration)
+5. GitHub will automatically create/enable code scanning
+
+#### For Private Repositories
+
+Private repositories require **GitHub Advanced Security** (available with GitHub Enterprise or as an add-on).
+
+1. Ensure GitHub Advanced Security is enabled for your organization/repository
+2. Go to **Settings** → **Code security and analysis**
+3. Enable **GitHub Advanced Security** if not already enabled
+4. Then enable **Code scanning** as described above
+
+#### Alternative: Enable via First Workflow Run
+
+If you have the correct permissions, GitHub may automatically enable code scanning when the workflow first runs. If you see the error:
+
+```
+Code scanning is not enabled for this repository
+```
+
+Enable it manually using the steps above.
+
 ## Workflow Details
 
 **File:** [.github/workflows/codeql.yml](../../.github/workflows/codeql.yml)  
@@ -256,6 +289,33 @@ Available query suites:
 - Custom `.ql` or `.qls` files in the repository
 
 ## Troubleshooting
+
+### Code Scanning Not Enabled
+
+**Issue:** "Code scanning is not enabled for this repository" error when workflow runs
+
+**Error Message:**
+```
+Error: Please verify that the necessary features are enabled: 
+Code scanning is not enabled for this repository. 
+Please enable code scanning in the repository settings.
+```
+
+**Solution:**
+
+1. **Go to Repository Settings**
+   - Navigate to **Settings** → **Code security and analysis**
+
+2. **Enable Code Scanning**
+   - Find the **Code scanning** section
+   - Click **Set up** and choose **Default** or **Advanced**
+   - For private repos, ensure **GitHub Advanced Security** is enabled first
+
+3. **Re-run the Workflow**
+   - Once enabled, re-run the failed workflow
+   - Results will now upload successfully to the Security tab
+
+**Note:** For private repositories, this requires GitHub Advanced Security which is available with GitHub Enterprise or as a paid add-on.
 
 ### Workflow Doesn't Run on Pull Request
 
