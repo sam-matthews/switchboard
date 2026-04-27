@@ -34,4 +34,4 @@ jobs:
           node-version: '20'
 
       - name: Enforce image minimum-age policy
-        run: npm run security:images:age
+        run: node scripts/verify-images.js
