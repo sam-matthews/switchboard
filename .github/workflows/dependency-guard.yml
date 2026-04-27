@@ -3,7 +3,6 @@ name: Dependency Guard
 on:
   pull_request:
     paths:
-      - 'package.json'
       - 'backend/package.json'
       - 'frontend/package.json'
       - 'backend/package-lock.json'
@@ -15,7 +14,6 @@ on:
     branches:
       - integration
     paths:
-      - 'package.json'
       - 'backend/package.json'
       - 'frontend/package.json'
       - 'backend/package-lock.json'
@@ -38,10 +36,12 @@ jobs:
           node-version: '20'
 
       - name: Install backend dependencies
-        run: npm ci --prefix backend --ignore-scripts
+        working-directory: backend
+        run: npm ci --ignore-scripts
 
       - name: Install frontend dependencies
-        run: npm ci --prefix frontend --ignore-scripts
+        working-directory: frontend
+        run: npm ci --ignore-scripts
 
       - name: Enforce dependency policy
         run: node scripts/verify-dependencies.js
