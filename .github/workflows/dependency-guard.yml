@@ -44,4 +44,4 @@ jobs:
         run: npm ci --prefix frontend --ignore-scripts
 
       - name: Enforce dependency policy
-        run: npm run security:deps
+        run: node scripts/verify-dependencies.js
