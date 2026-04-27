@@ -70,6 +70,7 @@ function main() {
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   const minimumImageAgeDays = Number(config.minimumImageAgeDays || 14);
+  const excludedImages = Array.isArray(config.excludedImages) ? config.excludedImages : [];
 
   const composeFile = config.composeFile || 'docker-compose.yml';
   const composeFilePath = path.join(__dirname, '..', composeFile);
@@ -95,6 +96,11 @@ function main() {
   console.log(`Tracked services: ${trackedServices.join(', ')}`);
 
   for (const image of images) {
+    if (excludedImages.includes(image)) {
+      console.log(`- Skipping ${image} (excluded from age check)`);
+      continue;
+    }
+
     process.stdout.write(`- Pulling ${image} ... `);
     run('docker', ['pull', image]);
     console.log('ok');
