@@ -6,9 +6,9 @@
   _Created: 2026-04-29_
   - [x] Create feature branch  
     _Due: 2026-05-01_
-  - [ ] Implement SBOM generation (Syft/Trivy/CycloneDX)  
+  - [x] Implement SBOM generation (Syft/Trivy/CycloneDX)  
     _Due: 2026-05-03_
-  - [ ] Add SBOM validation step in CI  
+  - [x] Add SBOM validation step in CI  
     _Due: 2026-05-04_
   - [ ] Test and document SBOM process  
     _Due: 2026-05-05_
