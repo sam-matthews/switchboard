@@ -1,21 +1,13 @@
 # Fixed / added secrets.name: Deploy To VM
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - SBOM
     branches:
       - integration
-  workflow_dispatch:
-    inputs:
-      verify_auth_host:
-        description: "Run optional auth host verification"
-        required: false
-        default: false
-        type: boolean
-      auth_host_url:
-        description: "Auth host URL to verify when enabled"
-        required: false
-        default: "https://auth.sammatthews.nz"
-        type: string
+    types:
+      - completed
 
 concurrency:
   group: vm-production-deploy
@@ -23,12 +15,15 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'integration' }}
     environment: integration
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Build deployment archive
         run: |
@@ -76,8 +71,8 @@ jobs:
 
       - name: Verify public endpoints
         env:
-          VERIFY_AUTH_HOST: ${{ github.event.inputs.verify_auth_host || 'false' }}
-          AUTH_HOST_URL: ${{ github.event.inputs.auth_host_url || 'https://auth.sammatthews.nz' }}
+          VERIFY_AUTH_HOST: 'false'
+          AUTH_HOST_URL: 'https://auth.sammatthews.nz'
         run: |
           set -euo pipefail
           check_url() {
