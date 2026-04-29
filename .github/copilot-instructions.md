@@ -103,3 +103,4 @@ This is a React frontend and Node.js backend application with authentication sup
 - Document API endpoints with request/response examples
 - Comment complex business logic
 - Use clear, descriptive variable and function names
+- Ensure all Markdown files adhere to linting standards
