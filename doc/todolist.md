@@ -4,7 +4,7 @@
 
 - [ ] **Add SBOM (Software Bill of Materials) generation and validation**  
   _Created: 2026-04-29_
-  - [ ] Create feature branch  
+  - [x] Create feature branch  
     _Due: 2026-05-01_
   - [ ] Implement SBOM generation (Syft/Trivy/CycloneDX)  
     _Due: 2026-05-03_
