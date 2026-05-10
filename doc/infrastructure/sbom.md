@@ -32,5 +32,14 @@ The workflow performs the following steps:
 
 ## Storing SBOMs
 
-Generated SBOMs are stored in the `.sbom/` directory. This directory is
-version-controlled to maintain a history of SBOMs for each release.
+Generated SBOMs are uploaded as GitHub Actions workflow artifacts (`sboms`)
+from the SBOM workflow run. They are not committed to the repository.
+
+To access generated SBOMs:
+
+1. Open the **SBOM** workflow run in GitHub Actions.
+2. Download the `sboms` artifact from the run summary.
+3. Extract `sbom-frontend.json` and `sbom-backend.json` for review or archival.
+
+If long-term retention is required, download and store these files in your
+release artifacts store as part of the release process.
