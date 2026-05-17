@@ -1,5 +1,5 @@
 {
-	"minimumReleaseAgeDays": 7,
+	"minimumReleaseAgeDays": 3,
 	"includeTransitiveDependencies": true,
 	"projects": [
 		"backend",
