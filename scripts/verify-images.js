@@ -96,6 +96,11 @@ function main() {
   console.log(`Tracked services: ${trackedServices.join(', ')}`);
 
   for (const image of images) {
+    if (excludedImages.includes(image)) {
+      console.log(`- Skipping ${image} (excluded from age check)`);
+      continue;
+    }
+
     process.stdout.write(`- Pulling ${image} ... `);
     run('docker', ['pull', image]);
     console.log('ok');
