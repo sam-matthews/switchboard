@@ -71,6 +71,7 @@ function main() {
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   const minimumImageAgeDays = Number(config.minimumImageAgeDays || 14);
   const allowFreshImages = Array.isArray(config.allowFreshImages) ? config.allowFreshImages : [];
+  const excludedImages = Array.isArray(config.excludedImages) ? config.excludedImages : [];
 
   const composeFile = config.composeFile || 'docker-compose.yml';
   const composeFilePath = path.join(__dirname, '..', composeFile);
