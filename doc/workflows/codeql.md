@@ -79,15 +79,15 @@ Performs CodeQL analysis on the codebase for JavaScript/TypeScript code.
    - Action: `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5` (v4)
 
 2. **Initialize CodeQL** - Sets up the CodeQL analysis environment
-   - Action: `github/codeql-action/init@3b1a19a80ab047f35cbb237b5bd9bdc1e14f166c` (v3)
+   - Action: `github/codeql-action/init@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a` (v4)
    - Configures language scanning for JavaScript/TypeScript
 
 3. **Autobuild** - Automatically builds the project if needed
-   - Action: `github/codeql-action/autobuild@3b1a19a80ab047f35cbb237b5bd9bdc1e14f166c` (v3)
+   - Action: `github/codeql-action/autobuild@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a` (v4)
    - Detects and runs build commands for JavaScript projects
 
 4. **Perform CodeQL Analysis** - Runs the analysis and uploads results
-   - Action: `github/codeql-action/analyze@3b1a19a80ab047f35cbb237b5bd9bdc1e14f166c` (v3)
+   - Action: `github/codeql-action/analyze@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a` (v4)
    - Uploads findings to GitHub Security tab
 
 ## Running the Workflow
@@ -245,7 +245,7 @@ Example update:
 
 ```yaml
 - name: Initialize CodeQL
-  uses: github/codeql-action/init@<new-sha-here> # v3
+  uses: github/codeql-action/init@<new-sha-here> # v4
 ```
 
 ### Adding Additional Languages
