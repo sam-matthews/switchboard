@@ -10,6 +10,7 @@ on:
       - '.github/security/blocked-packages.json'
       - '.github/security/dependency-age-policy.json'
       - 'scripts/verify-dependencies.js'
+      - 'scripts/verify-fresh-allowlist-security.js'
   push:
     branches:
       - integration
@@ -21,6 +22,7 @@ on:
       - '.github/security/blocked-packages.json'
       - '.github/security/dependency-age-policy.json'
       - 'scripts/verify-dependencies.js'
+      - 'scripts/verify-fresh-allowlist-security.js'
 
 jobs:
   dependency-policy:
@@ -47,3 +49,6 @@ jobs:
 
       - name: Enforce dependency policy
         run: node scripts/verify-dependencies.js
+
+      - name: Run fresh-allowlist security checks
+        run: node scripts/verify-fresh-allowlist-security.js
