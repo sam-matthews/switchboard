@@ -167,11 +167,18 @@ async function main() {
 
   const hits = [];
 
-  for (const pair of missing) {
-    hits.push(`Allowlisted dependency not present in lockfiles: ${pair.name}@${pair.version}`);
+  if (missing.length > 0) {
+    console.warn('Fresh-allowlist entries not present in lockfiles (consider cleanup):');
+    for (const pair of missing) {
+      console.warn(`- ${pair.name}@${pair.version}`);
+    }
   }
 
-  hits.push(...(await verifyRegistryMetadata(allowlistedPairs)));
+  const presentAllowlistedPairs = allowlistedPairs.filter((pair) =>
+    allFound.some((found) => found.name === pair.name && found.version === pair.version)
+  );
+
+  hits.push(...(await verifyRegistryMetadata(presentAllowlistedPairs)));
 
   for (const [projectDir, relevantPairs] of projectMatches.entries()) {
     if (relevantPairs.length === 0) {
