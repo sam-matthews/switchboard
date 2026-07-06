@@ -6,6 +6,9 @@
 		"frontend"
 	],
 	"allowFreshVersions": {
+		"web-vitals": [
+			"5.3.0"
+		],
 		"axios": [
 			"1.14.0"
 		]
