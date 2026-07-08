@@ -1,11 +1,14 @@
 {
-	"minimumReleaseAgeDays": 7,
+	"minimumReleaseAgeDays": 3,
 	"includeTransitiveDependencies": true,
 	"projects": [
 		"backend",
 		"frontend"
 	],
 	"allowFreshVersions": {
+		"web-vitals": [
+			"5.3.0"
+		],
 		"axios": [
 			"1.14.0"
 		]

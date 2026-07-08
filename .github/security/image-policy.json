@@ -1,5 +1,5 @@
 {
-	"minimumImageAgeDays": 14,
+	"minimumImageAgeDays": 3,
 	"composeFile": "docker-compose.yml",
 	"trackedServices": [
 		"app-db",
