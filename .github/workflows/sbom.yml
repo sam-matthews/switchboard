@@ -2,7 +2,7 @@ name: SBOM
 
 on:
   push:
-    branches: [ "integration" ]
+    branches: [ "integration", "release" ]
   pull_request:
     branches: [ "main" ]
 
