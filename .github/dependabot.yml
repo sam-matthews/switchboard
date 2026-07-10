@@ -14,7 +14,7 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    target-branch: "integration"
+    target-branch: "release"
 
   - package-ecosystem: "npm"
     directory: "/backend"
@@ -30,7 +30,7 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    target-branch: "integration"
+    target-branch: "release"
 
   - package-ecosystem: "npm"
     directory: "/frontend"
@@ -46,7 +46,7 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    target-branch: "integration"
+    target-branch: "release"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -62,4 +62,4 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    target-branch: "integration"
+    target-branch: "release"

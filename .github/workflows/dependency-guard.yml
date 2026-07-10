@@ -14,6 +14,7 @@ on:
   push:
     branches:
       - integration
+      - release
     paths:
       - 'backend/package.json'
       - 'frontend/package.json'
