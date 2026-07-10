@@ -1,4 +1,4 @@
-# Fixed / added secrets.name: Deploy To VM
+# Deploy to VM on push to integration
 
 on:
   push:
